@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neue App eintragen</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script>
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form { display: grid; gap: 16px; padding: 8px 0 48px; }
+    .panel { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: grid; gap: 14px; }
+    .panel h2 { margin: 0; font-size: 1.05rem; }
+    .row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    label.f { display: grid; gap: 6px; font-size: 0.88rem; color: var(--muted); }
+    .f input, .f textarea, .f select {
+      padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--bg); color: var(--text); font: inherit; font-size: 0.95rem;
+    }
+    .f input[type="color"] { padding: 4px; height: 44px; }
+    .f textarea { min-height: 90px; resize: vertical; }
+    .dl-item { border: 1px dashed var(--border); border-radius: 12px; padding: 14px; display: grid; gap: 12px; }
+    .drop { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; color: var(--muted); cursor: pointer; }
+    .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+    pre { margin: 0; padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: auto; font-size: 0.85rem; max-height: 420px; }
+    .hint { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="./"><span class="brand-mark">←</span><span>Zur Download-Seite</span></a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1 style="margin:8px 0 4px">Neue App eintragen</h1>
+    <p class="hint">Formular ausfüllen, Dateien reinziehen, Code kopieren und in <code>apps.js</code> in die Liste <code>window.APPS = [ … ]</code> einfügen. Die Dateien selbst musst du danach in den Ordner <code>downloads/</code> legen.</p>
+
+    <form class="form" id="form" autocomplete="off">
+      <div class="panel">
+        <h2>Allgemein</h2>
+        <div class="row">
+          <label class="f">Name *<input name="name" required placeholder="Meine App" /></label>
+          <label class="f">Version *<input name="version" required placeholder="1.0.0" /></label>
+          <label class="f">Datum<input name="date" type="date" /></label>
+          <label class="f">Farbe<input name="color" type="color" value="#6d5efc" /></label>
+        </div>
+        <label class="f">Beschreibung *<textarea name="description" required placeholder="Was macht die App?"></textarea></label>
+        <label class="f">Was ist neu? (eine Zeile pro Punkt)<textarea name="changelog" placeholder="Erste Version"></textarea></label>
+        <div class="row">
+          <label class="f">Icon-Pfad (optional)<input name="icon" placeholder="icons/meine-app.png" /></label>
+          <label class="f">Screenshots (optional, mit Komma trennen)<input name="screenshots" placeholder="screenshots/1.png, screenshots/2.png" /></label>
+        </div>
+        <div class="row">
+          <label class="f">Link-Name (optional)<input name="linkLabel" placeholder="Quellcode" /></label>
+          <label class="f">Link-URL<input name="linkUrl" placeholder="https://github.com/…" /></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Downloads</h2>
+        <div id="dl-list" style="display:grid;gap:12px"></div>
+        <div><button class="btn btn-ghost" type="button" id="add-dl">+ Weitere Plattform</button></div>
+      </div>
+
+      <div class="panel">
+        <h2>Fertiger Eintrag</h2>
+        <pre id="output"></pre>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="copy" style="flex:none">Code kopieren</button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <template id="dl-template">
+    <div class="dl-item">
+      <div class="row">
+        <label class="f">Plattform
+          <select name="platform">
+            <option value="windows">Windows</option>
+            <option value="mac">macOS</option>
+            <option value="linux">Linux</option>
+            <option value="android">Android</option>
+            <option value="ios">iOS</option>
+            <option value="web">Web (Link)</option>
+          </select>
+        </label>
+        <label class="f">Datei-Pfad oder URL<input name="file" placeholder="downloads/MeineApp.exe" /></label>
+        <label class="f">Größe<input name="size" placeholder="24 MB" /></label>
+      </div>
+      <label class="drop">
+        <input type="file" hidden />
+        <span>Datei hierher ziehen oder klicken – Pfad, Größe und SHA-256 werden automatisch ausgefüllt.<br><small>Die Datei wird nicht hochgeladen, nur lokal gelesen.</small></span>
+      </label>
+      <label class="f">SHA-256<input name="sha256" readonly placeholder="wird automatisch berechnet" /></label>
+      <div><button class="btn btn-ghost" type="button" data-remove>Entfernen</button></div>
+    </div>
+  </template>
+
+  <script>
+    const form = document.getElementById("form");
+    const list = document.getElementById("dl-list");
+    const output = document.getElementById("output");
+    form.date.value = new Date().toISOString().slice(0, 10);
+
+    function slug(text) {
+      return text.toLowerCase()
+        .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "meine-app";
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+      if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(bytes < 10 * 1024 ** 2 ? 1 : 0)} MB`.replace(".", ",");
+      return `${(bytes / 1024 ** 3).toFixed(1)} GB`.replace(".", ",");
+    }
+
+    function guessPlatform(name) {
+      const ext = name.split(".").pop().toLowerCase();
+      return { exe: "windows", msi: "windows", msix: "windows", dmg: "mac", pkg: "mac", apk: "android", aab: "android",
+        ipa: "ios", appimage: "linux", deb: "linux", rpm: "linux", flatpak: "linux" }[ext];
+    }
+
+    async function sha256(file) {
+      if (!crypto.subtle) return "";
+      const hash = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+      return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function handleFile(item, file) {
+      const q = (n) => item.querySelector(`[name="${n}"]`);
+      q("file").value = `downloads/${file.name}`;
+      q("size").value = formatSize(file.size);
+      const platform = guessPlatform(file.name);
+      if (platform) q("platform").value = platform;
+      q("sha256").value = "wird berechnet …";
+      update();
+      try { q("sha256").value = await sha256(file); }
+      catch { q("sha256").value = ""; }
+      update();
+    }
+
+    function addDownload() {
+      const item = document.getElementById("dl-template").content.firstElementChild.cloneNode(true);
+      const drop = item.querySelector(".drop");
+      const input = drop.querySelector("input");
+      input.addEventListener("change", () => input.files[0] && handleFile(item, input.files[0]));
+      drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+      drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        drop.classList.remove("over");
+        if (e.dataTransfer.files[0]) handleFile(item, e.dataTransfer.files[0]);
+      });
+      item.querySelector("[data-remove]").addEventListener("click", () => { item.remove(); update(); });
+      list.append(item);
+      update();
+    }
+
+    function build() {
+      const f = form.elements;
+      const lines = (v) => v.split("\n").map((s) => s.trim()).filter(Boolean);
+      const app = {
+        id: slug(f.name.value),
+        name: f.name.value.trim(),
+        description: f.description.value.trim(),
+        icon: f.icon.value.trim(),
+        color: f.color.value,
+        version: f.version.value.trim(),
+        date: f.date.value,
+        changelog: lines(f.changelog.value),
+      };
+      const shots = f.screenshots.value.split(",").map((s) => s.trim()).filter(Boolean);
+      if (shots.length) app.screenshots = shots;
+      if (f.linkUrl.value.trim()) app.links = [{ label: f.linkLabel.value.trim() || "Website", url: f.linkUrl.value.trim() }];
+      app.downloads = [...list.children].map((item) => {
+        const q = (n) => item.querySelector(`[name="${n}"]`).value.trim();
+        const d = { platform: q("platform"), file: q("file") };
+        if (q("size")) d.size = q("size");
+        if (/^[0-9a-f]{64}$/.test(q("sha256"))) d.sha256 = q("sha256");
+        return d;
+      });
+      return app;
+    }
+
+    function update() {
+      const json = JSON.stringify(build(), null, 2)
+        .replace(/"([a-zA-Z0-9]+)":/g, "$1:"); // JS object style keys
+      output.textContent = json.replace(/^/gm, "  ") + ",";
+    }
+
+    form.addEventListener("input", update);
+    document.getElementById("add-dl").addEventListener("click", addDownload);
+    document.getElementById("copy").addEventListener("click", async () => {
+      if (!form.reportValidity()) return;
+      const t = document.getElementById("toast");
+      try { await navigator.clipboard.writeText(output.textContent); t.textContent = "Kopiert – jetzt in apps.js einfügen"; }
+      catch { t.textContent = "Bitte Text markieren und kopieren"; }
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    });
+    addDownload();
+  </script>
+</body>
+</html>

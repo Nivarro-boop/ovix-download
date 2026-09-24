@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Downloads</title>
+  <meta name="description" content="Apps kostenlos herunterladen." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script>
+    // Apply saved theme before paint to avoid flicker
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <span class="brand-mark" id="brand-mark">O</span>
+        <span id="brand-name">Downloads</span>
+      </a>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Hell/Dunkel umschalten"></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <h1 id="hero-title">Meine <span>Apps</span></h1>
+      <p id="hero-tagline"></p>
+      <div class="stats" id="stats"></div>
+    </div>
+  </section>
+
+  <div class="toolbar" id="toolbar">
+    <div class="wrap">
+      <label class="search">
+        <span class="sr-only">App suchen</span>
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="search" placeholder="App suchen…" autocomplete="off" />
+      </label>
+      <div id="filters" class="filters" role="group" aria-label="Plattform"></div>
+      <label>
+        <span class="sr-only">Sortieren</span>
+        <select id="sort" class="sort">
+          <option value="new">Neueste zuerst</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div id="grid" class="grid" aria-live="polite"></div>
+    <div id="empty" class="empty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <p>Keine App gefunden.</p>
+      <button class="btn btn-ghost" id="reset" type="button">Filter zurücksetzen</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span id="footer-text"></span>
+      <a id="contact" hidden>Kontakt</a>
+    </div>
+  </footer>
+
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="apps.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
