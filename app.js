@@ -163,8 +163,8 @@ function renderHeader() {
   const platformCount = new Set(apps.flatMap((a) => a.downloads.map((d) => d.platform))).size;
   const latest = [...apps].filter((a) => a.date).sort((a, b) => b.date.localeCompare(a.date))[0];
   $("#stats").replaceChildren(
-    el("span", { class: "stat" }, [el("span", { html: ICONS.box }), el("b", { text: apps.length }), " Apps"]),
-    el("span", { class: "stat" }, [el("span", { html: ICONS.windows }), el("b", { text: platformCount }), " Plattformen"]),
+    el("span", { class: "stat" }, [el("span", { html: ICONS.box }), el("b", { text: apps.length }), apps.length === 1 ? " App" : " Apps"]),
+    el("span", { class: "stat" }, [el("span", { html: ICONS.windows }), el("b", { text: platformCount }), platformCount === 1 ? " Plattform" : " Plattformen"]),
     latest
       ? el("span", { class: "stat" }, [el("span", { html: ICONS.clock }), "Zuletzt aktualisiert ", el("b", { text: formatDate(latest.date) })])
       : null
@@ -221,6 +221,7 @@ function renderApps() {
             el("h2", {}, el("a", { class: "title-link", href: `#${app.id}`, text: app.name })),
             el("div", { class: "meta" }, [
               el("span", { class: "badge", text: `v${app.version}` }),
+              app.tag ? el("span", { class: "badge tag", text: app.tag }) : null,
               isNew(app) ? el("span", { class: "badge new", text: "Neu" }) : null,
               app.date ? el("span", { text: formatDate(app.date) }) : null,
             ]),
@@ -261,6 +262,7 @@ function openModal(app) {
         el("h2", { id: "modal-title", text: app.name }),
         el("div", { class: "meta" }, [
           el("span", { class: "badge", text: `v${app.version}` }),
+          app.tag ? el("span", { class: "badge tag", text: app.tag }) : null,
           isNew(app) ? el("span", { class: "badge new", text: "Neu" }) : null,
           app.date ? el("span", { text: formatDate(app.date) }) : null,
         ]),

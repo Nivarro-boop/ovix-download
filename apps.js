@@ -12,36 +12,38 @@ window.SITE = {
   newDays: 30, // Apps jünger als X Tage bekommen "Neu"-Badge
 };
 
+// Felder: id (eindeutig, a-z 0-9 -), name, description, icon, color, version,
+// tag (z. B. "Beta"), date, changelog, screenshots, links, downloads.
+// Leeres file: "" bei einem Download = Button "Bald verfügbar".
 window.APPS = [
   {
-    id: "beispiel-app", // eindeutig, nur a-z 0-9 und -
-    name: "Beispiel App",
-    description: "Kurze Beschreibung, was die App macht und warum sie nützlich ist.",
-    icon: "", // z. B. "icons/beispiel.png" – leer = Buchstaben-Icon
-    color: "#6d5efc",
-    version: "1.0.0",
-    date: "2026-09-23",
-    changelog: ["Erste Version"],
-    screenshots: [], // z. B. ["screenshots/beispiel-1.png"]
-    links: [], // z. B. [{ label: "Quellcode", url: "https://github.com/..." }]
-    downloads: [
-      { platform: "windows", file: "downloads/BeispielApp-Setup.exe", size: "24 MB", sha256: "" },
-      { platform: "android", file: "downloads/BeispielApp.apk", size: "12 MB", sha256: "" },
+    id: "safesort",
+    name: "SafeSort",
+    description:
+      "Sicherer, KI-gestützter Posteingangs-Sortierer für Microsoft 365, Outlook.com und Gmail – " +
+      "voreingestellt für Hausverwaltungen. SafeSort ordnet neue Mails Kategorien wie Schadensmeldung, " +
+      "Kündigung oder Betriebskosten zu und verschiebt sie in passende Unterordner. Im Zweifel landet " +
+      "eine Mail in „Bitte prüfen“ und ein Mensch entscheidet. Mails senden, löschen oder Anhänge " +
+      "öffnen ist technisch ausgeschlossen.",
+    icon: "icons/safesort.svg",
+    color: "#2563eb",
+    version: "0.1.0",
+    tag: "Beta",
+    date: "2026-09-24",
+    changelog: [
+      "Erste öffentliche Beta",
+      "Sortiert Postfächer von Microsoft 365, Outlook.com und Gmail",
+      "KI-Modell wählbar: eingebaut, lokal mit Ollama oder EU-API",
+      "Desktop-App mit Korrekturen und Probelauf (Dry-Run)",
+      "Zugangsdaten verschlüsselt im Windows-Tresor",
     ],
-  },
-  {
-    id: "zweite-app",
-    name: "Zweite App",
-    description: "Noch eine App. Einträge einfach kopieren und anpassen.",
-    icon: "",
-    color: "#10b981",
-    version: "0.3.1",
-    date: "2026-08-10",
-    changelog: ["Bugfixes", "Dunkles Design"],
     downloads: [
-      { platform: "mac", file: "downloads/ZweiteApp.dmg", size: "40 MB" },
-      { platform: "linux", file: "downloads/ZweiteApp.AppImage", size: "38 MB" },
-      { platform: "windows", file: "", note: "Bald verfügbar" }, // leeres file = Button deaktiviert
+      {
+        platform: "windows",
+        file: "downloads/SafeSort-0.1.0-win64.msi",
+        size: "66 MB",
+        sha256: "99da3301f49171b868ef853fe4884b367d017f0d1a3140bae993af142ebfbd6a",
+      },
     ],
   },
 ];

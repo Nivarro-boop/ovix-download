@@ -198,6 +198,7 @@ svg.i { width: 18px; height: 18px; flex: none; }
   object-fit: cover;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
+img.app-icon { box-shadow: 0 4px 12px rgba(20, 22, 28, 0.18); }
 .app-icon.lg { width: 80px; height: 80px; border-radius: 20px; font-size: 2.1rem; }
 .card h2 { margin: 0; font-size: 1.15rem; line-height: 1.3; }
 .title-link { text-decoration: none; }
@@ -212,6 +213,7 @@ svg.i { width: 18px; height: 18px; flex: none; }
   color: var(--muted);
 }
 .badge.new { background: var(--accent-soft); color: var(--accent); }
+.badge.tag { background: rgba(245, 158, 11, 0.15); color: #d97706; }
 .desc {
   margin: 0; color: var(--muted);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
